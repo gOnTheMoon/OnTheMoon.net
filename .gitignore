@@ -38,3 +38,10 @@ jspm_packages
 
 public/
 .deploy_git/
+
+.DS_Store
+Thumbs.db
+db.json
+.deploy*/
+
+package-lock.json
