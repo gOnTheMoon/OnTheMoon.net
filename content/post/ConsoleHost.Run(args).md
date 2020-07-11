@@ -1,6 +1,7 @@
 ---
 title: "ConsoleHost.Run(args)"
 date: 2020-07-08T22:58:34-04:00
+aliases: ["/post/consolehost.runargs/"]
 ---
 This blog is dedicated to the notification server project, a well established project which many have devoted their time to its development.
 
