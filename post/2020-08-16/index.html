@@ -259,11 +259,11 @@ We skip the RequestListener implementation for now. We will get to it in another
 <span class=p>{</span>
     <span class=k>public</span> <span class=kt>bool</span> <span class=n>IsActivated</span><span class=p>(</span><span class=n>IEvent</span> <span class=n>eventToCheck</span><span class=p>)</span>
     <span class=p>{</span>
-        <span class=n>PixelEvent</span> <span class=n>pixelEvent</span> <span class=p>=</span> <span class=n>eventToCheck</span> <span class=k>as</span> <span class=n>PixelEvent</span><span class=p>;</span>
+        <span class=n>ComplexPixelEvent</span> <span class=n>pixelEvent</span> <span class=p>=</span> <span class=n>eventToCheck</span> <span class=k>as</span> <span class=n>ComplexPixelEvent</span><span class=p>;</span>
 
         <span class=k>if</span> <span class=p>(</span><span class=n>pixelEvent</span> <span class=p>!=</span> <span class=k>null</span><span class=p>)</span>
         <span class=p>{</span>
-            <span class=k>return</span> <span class=n>pixelEvent</span><span class=p>.</span><span class=n>Request</span> <span class=k>is</span> <span class=n>MandelbrotRequestEvent</span><span class=p>;</span>
+            <span class=k>return</span> <span class=n>pixelEvent</span><span class=p>.</span><span class=n>Pixel</span><span class=p>.</span><span class=n>Request</span> <span class=k>is</span> <span class=n>MandelbrotRequestEvent</span><span class=p>;</span>
         <span class=p>}</span>
 
         <span class=k>return</span> <span class=k>false</span><span class=p>;</span>
@@ -274,11 +274,11 @@ We skip the RequestListener implementation for now. We will get to it in another
 <span class=p>{</span>
     <span class=k>public</span> <span class=kt>bool</span> <span class=n>IsActivated</span><span class=p>(</span><span class=n>IEvent</span> <span class=n>eventToCheck</span><span class=p>)</span>
     <span class=p>{</span>
-        <span class=n>PixelEvent</span> <span class=n>pixelEvent</span> <span class=p>=</span> <span class=n>eventToCheck</span> <span class=k>as</span> <span class=n>PixelEvent</span><span class=p>;</span>
+        <span class=n>ComplexPixelEvent</span> <span class=n>pixelEvent</span> <span class=p>=</span> <span class=n>eventToCheck</span> <span class=k>as</span> <span class=n>ComplexPixelEvent</span><span class=p>;</span>
 
         <span class=k>if</span> <span class=p>(</span><span class=n>pixelEvent</span> <span class=p>!=</span> <span class=k>null</span><span class=p>)</span>
         <span class=p>{</span>
-            <span class=k>return</span> <span class=n>pixelEvent</span><span class=p>.</span><span class=n>Request</span> <span class=k>is</span> <span class=n>JuliaRequestEvent</span><span class=p>;</span>
+            <span class=k>return</span> <span class=n>pixelEvent</span><span class=p>.</span><span class=n>Pixel</span><span class=p>.</span><span class=n>Request</span> <span class=k>is</span> <span class=n>JuliaRequestEvent</span><span class=p>;</span>
         <span class=p>}</span>
 
         <span class=k>return</span> <span class=k>false</span><span class=p>;</span>
