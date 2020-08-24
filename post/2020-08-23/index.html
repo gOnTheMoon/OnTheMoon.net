@@ -1,0 +1,117 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>4. ComponentBuilder - On the moon</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="זלינגר"><meta name=description content="Last time we saw how an implementation of a server over the notification server framework looks like. We discussed code of events, logics and rules. Something we have not discussed yet is how do we link components to one another. This is something that is resolved via a mechanism called component builder.
+The component builder is an interface provided by the notification server framework, where one defines the components of a specific server and defines the links between these components."><meta name=generator content="Hugo 0.71.1 with theme even"><link rel=canonical href=http://onthemoon.net/post/2020-08-23/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.8c3cbcb0324c2bb4875ceccba4007cbad4b4ac8377f33af9953c3e7684534a50.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="4. ComponentBuilder"><meta property="og:description" content="Last time we saw how an implementation of a server over the notification server framework looks like. We discussed code of events, logics and rules. Something we have not discussed yet is how do we link components to one another. This is something that is resolved via a mechanism called component builder.
+The component builder is an interface provided by the notification server framework, where one defines the components of a specific server and defines the links between these components."><meta property="og:type" content="article"><meta property="og:url" content="http://onthemoon.net/post/2020-08-23/"><meta property="article:published_time" content="2020-08-23T18:00:20-04:00"><meta property="article:modified_time" content="2020-08-23T18:00:20-04:00"><meta itemprop=name content="4. ComponentBuilder"><meta itemprop=description content="Last time we saw how an implementation of a server over the notification server framework looks like. We discussed code of events, logics and rules. Something we have not discussed yet is how do we link components to one another. This is something that is resolved via a mechanism called component builder.
+The component builder is an interface provided by the notification server framework, where one defines the components of a specific server and defines the links between these components."><meta itemprop=datePublished content="2020-08-23T18:00:20-04:00"><meta itemprop=dateModified content="2020-08-23T18:00:20-04:00"><meta itemprop=wordCount content="705"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="4. ComponentBuilder"><meta name=twitter:description content="Last time we saw how an implementation of a server over the notification server framework looks like. We discussed code of events, logics and rules. Something we have not discussed yet is how do we link components to one another. This is something that is resolved via a mechanism called component builder.
+The component builder is an interface provided by the notification server framework, where one defines the components of a specific server and defines the links between these components."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>On the moon</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/categories/><li class=mobile-menu-item>Categories</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>On the moon</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/categories/>Categories</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>4. ComponentBuilder</h1><div class=post-meta><span class=post-time>2020-08-23</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>Contents</h2><div class="post-toc-content always-active"><nav id=TableOfContents></nav></div></div><div class=post-content><p>Last time we saw how an implementation of a server over the notification server framework looks like. We discussed code of events, logics and rules. Something we have not discussed yet is how do we link components to one another. This is something that is resolved via a mechanism called <strong>component builder</strong>.</p><p>The component builder is an interface provided by the notification server framework, where one defines the components of a specific server and defines the links between these components. It consists of a single method:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>interface</span> <span class=n>IComponentBuilder</span>
+<span class=p>{</span>
+    <span class=k>void</span> <span class=n>BuildComponents</span><span class=p>(</span><span class=n>IRuntimeContext</span> <span class=n>context</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>The interface <code>IRuntimeContext</code> is an interface which provides information about our server. It will be discussed in another post. <code>IRuntimeContext</code> has a property named <code>Components</code> which is of type <code>IComponentContainer</code>. <code>IComponentContainer</code> is, as its name suggests, a container of the server components, and it extends (inherits from) the interface <code>ICollection&lt;IComponent></code>. I don&rsquo;t want to go into details about the interfaces <code>IComponent</code> and <code>IComponentContainer</code>, so for now let&rsquo;s just assume that all components implement the interface <code>IComponent</code>.</p><p>In the method <code>BuildComponents</code> we are expected to create the components of our server and link them one another. Let us demonstrate using the fractal processing server sample we discussed last time:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>class</span> <span class=nc>FractalProcessingServerComponentBuilder</span> <span class=p>:</span> <span class=n>IComponentBuilder</span>
+<span class=p>{</span>
+    <span class=k>public</span> <span class=k>void</span> <span class=n>BuildComponents</span><span class=p>(</span><span class=n>IRuntimeContext</span> <span class=n>context</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=c1>// Create components
+</span><span class=c1></span>        <span class=n>RequestListener</span> <span class=n>requestListener</span> <span class=p>=</span> <span class=k>new</span> <span class=n>RequestListener</span><span class=p>();</span>
+        <span class=n>PixelGeneratorLogic</span> <span class=n>pixelGeneratorLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>PixelGeneratorLogic</span><span class=p>();</span>
+        <span class=n>PixelToComplexConvertLogic</span> <span class=n>pixelToComplexConvertLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>PixelToComplexConvertLogic</span><span class=p>();</span>
+        <span class=n>MandelbrotLogic</span> <span class=n>mandelbrotLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>MandelbrotLogic</span><span class=p>();</span>
+        <span class=n>JuliaLogic</span> <span class=n>juliaLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>JuliaLogic</span><span class=p>();</span>
+        <span class=n>ColorConvertLogic</span> <span class=n>colorConvertLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>ColorConvertLogic</span><span class=p>();</span>
+        <span class=n>PixelStoreLogic</span> <span class=n>pixelStoreLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>PixelStoreLogic</span><span class=p>();</span>
+        <span class=n>BitmapConvertLogic</span> <span class=n>bitmapConvertLogic</span> <span class=p>=</span> <span class=k>new</span> <span class=n>BitmapConvertLogic</span><span class=p>();</span>
+        <span class=n>FileSystemDispatcher</span> <span class=n>fileSystemDispatcher</span> <span class=p>=</span> <span class=k>new</span> <span class=n>FileSystemDispatcher</span><span class=p>();</span>
+
+        <span class=c1>// Add components to component container
+</span><span class=c1></span>        <span class=n>IComponentContainer</span> <span class=n>componentContainer</span> <span class=p>=</span> <span class=n>context</span><span class=p>.</span><span class=n>Components</span><span class=p>;</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>pixelGeneratorLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>pixelToComplexConvertLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>mandelbrotLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>juliaLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>colorConvertLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>pixelStoreLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>bitmapConvertLogic</span><span class=p>);</span>
+        <span class=n>componentContainer</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>fileSystemDispatcher</span><span class=p>);</span>
+
+        <span class=c1>// Link components
+</span><span class=c1></span>        <span class=c1>// Upper chain
+</span><span class=c1></span>        <span class=n>requestListener</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>pixelGeneratorLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+        <span class=n>pixelGeneratorLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>pixelToComplexConvertLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+        <span class=n>pixelToComplexConvertLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>mandelbrotLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>MandelbrotRule</span><span class=p>());</span>
+        <span class=n>pixelToComplexConvertLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>juliaLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>JuilaRule</span><span class=p>());</span>
+        <span class=n>mandelbrotLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>colorConvertLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+        <span class=n>juliaLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>colorConvertLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+
+        <span class=c1>// Lower chain:
+</span><span class=c1></span>        <span class=n>requestListener</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>pixelStoreLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+        <span class=n>colorConvertLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>pixelStoreLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+        <span class=n>pixelStoreLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>bitmapConvertLogic</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+        <span class=n>bitmapConvertLogic</span><span class=p>.</span><span class=n>Subscribe</span><span class=p>(</span><span class=n>fileSystemDispatcher</span><span class=p>,</span> <span class=k>new</span> <span class=n>ActivateAllRule</span><span class=p>());</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>As we can see, we first create an instance of each component of our server, then add all the component instances to the <code>Components</code> property of the provided <code>IRuntimeContext</code>. Then we perform the links. We perform the links by calling a method called <code>Subscribe</code>. Every component which is not a target component (i.e., it allows other components to be linked to it) implements an interface called <code>IPublisher</code> which contains a method with the following signature:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>interface</span> <span class=n>IPublisher</span>
+<span class=p>{</span>
+    <span class=k>void</span> <span class=n>Subscribe</span><span class=p>(</span><span class=n>IRecipient</span> <span class=n>recipient</span><span class=p>,</span> <span class=n>IRule</span> <span class=n>rule</span><span class=p>);</span>
+    <span class=c1>// ...
+</span><span class=c1></span><span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>Again, I do not wish to discuss the interface <code>IRecipient</code> right now, but every component which is not a source component (i.e., it allows other components to link to it) implements <code>IRecipient</code>. The <code>Subscribe</code> method tells the publisher we are interested in receiving events that pass the given rule. This is always confusing for new developers, as they expect <code>Subscribe</code> to be a method of the subscriber, but this is the convention, and it is the same in other frameworks, such as <a href="https://docs.microsoft.com/en-us/dotnet/api/system.iobservable-1?view=netcore-3.1">Reactive Extensions</a>.</p><p>Note that when we subscribe our instances of <code>MandelbrotLogic</code> and <code>JuliaLogic</code> to our <code>PixelToComplexConvertLogic</code>, we provide instances of the rules we implemented last time. For the rest of the components, we provide an instance of <code>ActivateAllRule</code>, that is an implementation of <code>IRule</code> that allows every event to pass: it always returns <code>true</code> from the <code>IsActivated</code> method.</p><p>A few remarks about the <code>IComponentBuilder</code> interface:</p><ul><li>In the far past, there was no interface, but a class named <code>ComponentBuilder</code> with 3 methods for building components <code>BuildListeners</code>, <code>BuildLogics</code>, <code>BuildDispatchers</code>, in which one would build components of certain types. There was probably also a method called <code>LinkComponents</code> where one would link the server&rsquo;s components.</li><li>In modern versions of the notification server one does not need to implement the interface <code>IComponentBuilder</code>. Instead, the framework&rsquo;s user defines their components and their links in a visual tool. This definition is saved as a configuration file. Then the built-in <code>IComponentBuilder</code> implementation reads this file and constructs the components and links them accordingly.</li></ul></div><div class=post-copyright><p class=copyright-item><span class=item-title>Author</span>
+<span class=item-content>זלינגר</span></p><p class=copyright-item><span class=item-title>LastMod</span>
+<span class=item-content>2020-08-23</span></p></div><footer class=post-footer><nav class=post-nav><a class=next href=/post/2020-08-16/><span class="next-text nav-default">3. Fractal processing server example - part 2</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=social-links><a href=http://onthemoon.net/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a></span>
+<span class=division>|</span>
+<span class=theme-info>Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>זלינגר</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script></body></html>
