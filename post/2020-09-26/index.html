@@ -1,0 +1,191 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>6. StateDrivenEntity - On the moon</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="זלינגר"><meta name=description content="Today we are going to talk about one of the most infamous mechanisms of the notification server: StateDrivenEntity.
+Recall that every notification server can be thought of a gearbox, consisting of components which can be thought as the drive wheels. When our application launches, our notification server is at first not running. We need to perform some action in order to make it start, similarly to how we need to insert an ignition key and turn it in order to start a car engine."><meta name=generator content="Hugo 0.71.1 with theme even"><link rel=canonical href=http://onthemoon.net/post/2020-09-26/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.8c3cbcb0324c2bb4875ceccba4007cbad4b4ac8377f33af9953c3e7684534a50.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="6. StateDrivenEntity"><meta property="og:description" content="Today we are going to talk about one of the most infamous mechanisms of the notification server: StateDrivenEntity.
+Recall that every notification server can be thought of a gearbox, consisting of components which can be thought as the drive wheels. When our application launches, our notification server is at first not running. We need to perform some action in order to make it start, similarly to how we need to insert an ignition key and turn it in order to start a car engine."><meta property="og:type" content="article"><meta property="og:url" content="http://onthemoon.net/post/2020-09-26/"><meta property="article:published_time" content="2020-09-26T18:48:45-04:00"><meta property="article:modified_time" content="2020-09-26T18:48:45-04:00"><meta itemprop=name content="6. StateDrivenEntity"><meta itemprop=description content="Today we are going to talk about one of the most infamous mechanisms of the notification server: StateDrivenEntity.
+Recall that every notification server can be thought of a gearbox, consisting of components which can be thought as the drive wheels. When our application launches, our notification server is at first not running. We need to perform some action in order to make it start, similarly to how we need to insert an ignition key and turn it in order to start a car engine."><meta itemprop=datePublished content="2020-09-26T18:48:45-04:00"><meta itemprop=dateModified content="2020-09-26T18:48:45-04:00"><meta itemprop=wordCount content="908"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="6. StateDrivenEntity"><meta name=twitter:description content="Today we are going to talk about one of the most infamous mechanisms of the notification server: StateDrivenEntity.
+Recall that every notification server can be thought of a gearbox, consisting of components which can be thought as the drive wheels. When our application launches, our notification server is at first not running. We need to perform some action in order to make it start, similarly to how we need to insert an ignition key and turn it in order to start a car engine."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>On the moon</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/categories/><li class=mobile-menu-item>Categories</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>On the moon</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/categories/>Categories</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>6. StateDrivenEntity</h1><div class=post-meta><span class=post-time>2020-09-26</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>Contents</h2><div class="post-toc-content always-active"><nav id=TableOfContents></nav></div></div><div class=post-content><p>Today we are going to talk about one of the most infamous mechanisms of the notification server: <code>StateDrivenEntity</code>.</p><p>Recall that every notification server can be thought of a gearbox, consisting of components which can be thought as the drive wheels. When our application launches, our notification server is at first not running. We need to perform some action in order to make it start, similarly to how we need to insert an ignition key and turn it in order to start a car engine.</p><p>The mechanism that supports this in the notification server framework is called <code>StateDrivenEntity</code>. It allows a class to declare a <em>current state</em>. The entity also provides an api that allows users to change its state:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>interface</span> <span class=n>IStateDrivenEntity</span>
+<span class=p>{</span>
+    <span class=n>State</span> <span class=n>CurrentState</span> <span class=p>{</span> <span class=k>get</span><span class=p>;</span> <span class=p>}</span>
+
+    <span class=k>void</span> <span class=n>TransformTo</span><span class=p>(</span><span class=n>State</span> <span class=n>state</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>The type <code>State</code> is an enum:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>enum</span> <span class=n>State</span>
+<span class=p>{</span>
+    <span class=n>Uninitialized</span><span class=p>,</span>
+    <span class=n>Initialized</span><span class=p>,</span>
+    <span class=n>Started</span><span class=p>,</span>
+    <span class=n>Invalid</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>The possible states have the following meaning:</p><ul><li><strong>Uninitialized</strong> - the entity was created but was not initialized yet. This means that some of the entity&rsquo;s members are not initialized yet.</li><li><strong>Initialized</strong> - the entity was created, all its members are initialized, but they aren&rsquo;t started yet. For instance, suppose that our entity is a component that uses an HTTP listener to receive requests. When this component&rsquo;s state is <em>Initialized</em>, its HTTP listener data member would be initiated, but the component would still not be receiving HTTP requests. This means that a method of the sort <code>Open</code> or <code>Start</code> of the HTTP listener was not called yet.</li><li><strong>Started</strong> - the entity was created, all its members are initialized and started. Continuing with the previous example, if the previous component&rsquo;s state is <em>Started</em>, it means it is receiving HTTP requests. This means that a method of the sort <code>Open</code> or <code>Start</code> of the HTTP listener was called.</li><li><strong>Invalid</strong> - the entity is an invalid state. This usually means that an unhandled exception was thrown when the entity was in one of the previous states.</li></ul><p>There is some hierarchy among the states described above: an entity begins with state <em>Uninitialized</em>. We can then transform it to any state. However, if we transform it to <em>Started</em>, it will first transform to <em>Initialized</em> and then to <em>Started</em>. Similarly, if an entity is in state <em>Started</em>, we can transform it to any state, but if we transform it to <em>Uninitialized</em>, it will first transform to <em>Initialized</em>, and only then to <em>Uninitialized</em>. If an entity is in state <em>Invalid</em>, transforming it to any other state will be equivalent to first transforming it to <em>Unintialized</em> and then transforming it to the requested state.</p><p>There exists an abstract class that users can inherit from in order to implement the <code>IStateDrivenEntity</code> interface:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>abstract</span> <span class=k>class</span> <span class=nc>StateDrivenEntity</span> <span class=p>:</span> <span class=n>IStateDrivenEntity</span>
+<span class=p>{</span>
+    <span class=k>protected</span> <span class=k>abstract</span> <span class=k>void</span> <span class=n>InnerUninitializedToInitialized</span><span class=p>();</span>
+    <span class=k>protected</span> <span class=k>abstract</span> <span class=k>void</span> <span class=n>InnerInitializedToStarted</span><span class=p>();</span>
+    <span class=k>protected</span> <span class=k>abstract</span> <span class=k>void</span> <span class=n>InnerStartedToInitialized</span><span class=p>();</span>
+    <span class=k>protected</span> <span class=k>abstract</span> <span class=k>void</span> <span class=n>InnerInitializedToUninitialized</span><span class=p>();</span>
+    <span class=k>protected</span> <span class=k>abstract</span> <span class=k>void</span> <span class=n>InnerAnyToInvalid</span><span class=p>();</span>
+    <span class=k>protected</span> <span class=k>abstract</span> <span class=k>void</span> <span class=n>InnerInvalidToUninitialized</span><span class=p>();</span>
+
+    <span class=c1>// ...
+</span><span class=c1></span><span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>Users can inherit from this class and implement the methods to specify the behavior of their entity when it transforms states. There is also a class called <code>StateDrivenEntityHelper</code> which provides an implementation of <code>StateDrivenEntity</code> given delegates for each of these methods:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>class</span> <span class=nc>StateDrivenEntityHelper</span> <span class=p>:</span> <span class=n>StateDrivenEntity</span>
+<span class=p>{</span>
+    <span class=k>public</span> <span class=n>StateDrivenEntityHelper</span>
+        <span class=p>(</span><span class=n>Action</span> <span class=n>innerUninitializedToInitialized</span><span class=p>,</span>
+         <span class=n>Action</span> <span class=n>innerInitializedToStarted</span><span class=p>,</span>
+         <span class=n>Action</span> <span class=n>innerStartedToInitialized</span><span class=p>,</span>
+         <span class=n>Action</span> <span class=n>innerInitializedToUninitialized</span><span class=p>,</span>
+         <span class=n>Action</span> <span class=n>innerAnyToInvalid</span><span class=p>,</span>
+         <span class=n>Action</span> <span class=n>innerInvalidToUninitialized</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=c1>// ...        
+</span><span class=c1></span>    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>In the notification server framework, every component class implements <code>IStateDrivenEntity</code>, with the help of <code>StateDrivenEntityHelper</code>. Each component class contains <em>virtual</em> methods with the same signatures as in the definition of <code>StateDrivenEntity</code>. For example, here is how an implementation of the state transform methods of a <code>HttpListener</code> class:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-csharp data-lang=csharp><span class=k>public</span> <span class=k>class</span> <span class=nc>HttpListenerComponent</span> <span class=p>:</span> <span class=n>Listener</span>
+<span class=p>{</span>
+    <span class=k>private</span> <span class=n>HttpListener</span> <span class=n>mListener</span><span class=p>;</span>
+    <span class=k>private</span> <span class=k>readonly</span> <span class=kt>string</span> <span class=n>mUrl</span><span class=p>;</span>
+
+    <span class=k>public</span> <span class=n>HttpListenerComponent</span><span class=p>(</span><span class=kt>string</span> <span class=n>url</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=n>mUrl</span> <span class=p>=</span> <span class=n>url</span><span class=p>;</span>
+    <span class=p>}</span>
+
+    <span class=k>private</span> <span class=n>HttpListener</span> <span class=n>CreateHttpListener</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=n>HttpListener</span> <span class=n>httpListener</span> <span class=p>=</span> <span class=k>new</span> <span class=n>HttpListener</span><span class=p>();</span>
+        <span class=n>httpListener</span><span class=p>.</span><span class=n>Prefixes</span><span class=p>.</span><span class=n>Add</span><span class=p>(</span><span class=n>mUrl</span><span class=p>);</span>
+        <span class=k>return</span> <span class=n>httpListener</span><span class=p>;</span>
+    <span class=p>}</span>
+
+    <span class=k>protected</span> <span class=k>override</span> <span class=k>void</span> <span class=n>InnerUninitializedToInitialized</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>base</span><span class=p>.</span><span class=n>InnerUninitializedToInitialized</span><span class=p>();</span>
+        <span class=n>mListener</span> <span class=p>=</span> <span class=n>CreateHttpListener</span><span class=p>();</span>
+    <span class=p>}</span>
+
+    <span class=k>protected</span> <span class=k>override</span> <span class=k>void</span> <span class=n>InnerInitializedToStarted</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>base</span><span class=p>.</span><span class=n>InnerInitializedToStarted</span><span class=p>();</span>
+
+        <span class=n>mListener</span><span class=p>.</span><span class=n>Start</span><span class=p>();</span>
+        <span class=n>Task</span><span class=p>.</span><span class=n>Run</span><span class=p>(</span><span class=n>HandleIncomingConnections</span><span class=p>);</span>
+    <span class=p>}</span>
+
+    <span class=k>protected</span> <span class=k>override</span> <span class=k>void</span> <span class=n>InnerStartedToInitialized</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>base</span><span class=p>.</span><span class=n>InnerStartedToInitialized</span><span class=p>();</span>
+
+        <span class=n>mListener</span><span class=p>.</span><span class=n>Stop</span><span class=p>();</span>
+        <span class=n>mListener</span> <span class=p>=</span> <span class=n>CreateHttpListener</span><span class=p>();</span>
+    <span class=p>}</span>
+
+    <span class=k>protected</span> <span class=k>override</span> <span class=k>void</span> <span class=n>InnerInitializedToUninitialized</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>base</span><span class=p>.</span><span class=n>InnerInitializedToUninitialized</span><span class=p>();</span>
+
+        <span class=n>mListener</span> <span class=p>=</span> <span class=k>null</span><span class=p>;</span>
+    <span class=p>}</span>
+
+    <span class=k>public</span> <span class=k>async</span> <span class=n>Task</span> <span class=n>HandleIncomingConnections</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=c1>// ...
+</span><span class=c1></span>    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>We remark that in <code>InnerStartedToInitialized</code> we recreate the <code>HttpListener</code>. In principle, we could just call <code>Stop</code>, but there is a problem due to an implementation detail: <code>HttpListener</code> does not allow calling <code>Start</code> after we called <code>Stop</code>.</p><p>The last thing I want to explain is why I said this mechanism is infamous. The problem here is that C# already defines standard points for initializing your class and for cleaning your class resources: these are the constructor and the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=netcore-3.1"><code>IDisposable.Dispose</code></a> method respectively. The concept of <code>IStateDrivenEntity</code> kind of conflicts with these, as your class instance is not in a valid state until you call <code>TransformTo</code> with the appropriate state. We are currently still reviewing the current design/implementation of the notification server, and <code>IStateDrivenEntity</code> is one of the main concepts there. Think how you would design this differently: this is not an easy problem.</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>Author</span>
+<span class=item-content>זלינגר</span></p><p class=copyright-item><span class=item-title>LastMod</span>
+<span class=item-content>2020-09-26</span></p></div><footer class=post-footer><nav class=post-nav><a class=next href=/post/2020-08-29/><span class="next-text nav-default">5. Fractal processing server example - part 3</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=social-links><a href=http://onthemoon.net/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a></span>
+<span class=division>|</span>
+<span class=theme-info>Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>זלינגר</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script></body></html>
